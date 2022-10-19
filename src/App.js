@@ -8,7 +8,7 @@ const getTodos = async () => {
 
 const addTodo = async (text) => {
   const todo = await api.createTodo({
-    id: uuid,
+    id: uuid(),
     completed: false,
     text,
   });
