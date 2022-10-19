@@ -39,6 +39,9 @@
       "last 1 safari version"
     ]
   },
+  "browser": {
+    "crypto": false
+  },
   "devDependencies": {
     "netlify-cli": "^12.0.11"
   }
