@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import api from './utils/api';
-import uuid from 'node-uuid';
+import { v4 as uuid } from 'uuid';
 
 const getTodos = async () => {
   return await api.getTodos();
@@ -8,7 +8,7 @@ const getTodos = async () => {
 
 const addTodo = async (text) => {
   const todo = await api.createTodo({
-    id: uuid.v1(),
+    id: uuid,
     completed: false,
     text,
   });
