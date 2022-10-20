@@ -2,41 +2,88 @@ import React, { useEffect, useState } from 'react';
 import api from './utils/api';
 import { v4 as uuid } from 'uuid';
 
-const getTodos = async () => {
-  return await api.getTodos();
+const getTodos = async (setErrors) => {
+  try {
+    return await api.getTodos();
+  } catch (e) {
+    setErrors(`We tried to get your items but ${e.message}`);
+  }
 };
 
-const addTodo = async (text) => {
-  const todo = await api.createTodo({
-    id: uuid(),
-    completed: false,
-    text,
-  });
-
-  return {
-    id: todo.documentId,
-    completed: false,
-    text,
-  };
+const addTodo = async (text, setErrors) => {
+  try {
+    const todo = {
+      id: uuid(),
+      completed: false,
+      text,
+    };
+    const newTodo = await api.createTodo(todo);
+    return { ...todo, id: newTodo.documentId };
+  } catch (e) {
+    setErrors(`We can't add this item but ${e.message}`);
+  }
 };
 
-const deleteTodo = async (id) => {
-  const item = await api.deleteTodo(id);
-  return item.documentId;
+const deleteTodo = async (id, setErrors) => {
+  try {
+    const item = await api.deleteTodo(id);
+    return item.documentId;
+  } catch (e) {
+    setErrors(`We can't delete this item but ${e.message}`);
+  }
 };
 
-const updateTodo = async (todo) => {
-  const item = await api.updateTodo(todo);
-  return item.documentId;
+const updateTodo = async (todo, setErrors) => {
+  try {
+    const item = await api.updateTodo(todo);
+    return item.documentId;
+  } catch (e) {
+    setErrors(`We can't update this item but ${e.message}`);
+  }
+};
+
+const Todo = ({ todo, setErrors, onDelete, onUpdate }) => {
+  return (
+    <div>
+      <button
+        onClick={async () => {
+          const id = await deleteTodo(todo.id, setErrors);
+          onDelete && onDelete(id);
+        }}
+      >
+        &times;
+      </button>{' '}
+      <label
+        style={{
+          textDecoration: `${todo.completed ? 'line-through' : ''}`,
+        }}
+      >
+        <input
+          type="checkbox"
+          value={todo.id}
+          onChange={async () => {
+            const updatedTodo = {
+              ...todo,
+              ...{ completed: !todo.completed },
+            };
+            const id = await updateTodo(updatedTodo, setErrors);
+            onUpdate && onUpdate(id, updatedTodo);
+          }}
+        />
+        {todo.text}
+      </label>
+    </div>
+  );
 };
 
 const App = () => {
   const [todos, setTodos] = useState([]);
   const [item, setItem] = useState('');
+  const [errors, setErrors] = useState('');
 
   useEffect(() => {
     const loadTodos = async () => {
-      setTodos(await getTodos());
+      setTodos(await getTodos(setErrors));
     };
     loadTodos();
   }, []);
@@ -50,47 +97,34 @@ const App = () => {
       />
       <button
         onClick={async () => {
-          const todo = await addTodo(item);
+          const todo = await addTodo(item, setErrors);
           setTodos([...todos, todo]);
         }}
       >
         Add
       </button>
-      {todos.length === 0 && <div>There is nothing to do.</div>}
-      {todos.length > 0 &&
+      {errors && (
+        <div style={{ color: 'red' }}>
+          <strong>Something broke: </strong>
+          {errors}
+        </div>
+      )}
+      {todos && todos.length === 0 && <div>There is nothing to do.</div>}
+      {todos &&
+        todos.length > 0 &&
         todos.map((todo) => {
           return (
-            <div key={todo.id}>
-              <button
-                onClick={async () => {
-                  const id = await deleteTodo(todo.id);
-                  setTodos(todos.filter((todo) => todo.id !== id));
-                }}
-              >
-                &times;
-              </button>{' '}
-              <label
-                style={{
-                  textDecoration: `${todo.completed ? 'line-through' : ''}`,
-                }}
-              >
-                <input
-                  type="checkbox"
-                  value={todo.id}
-                  onChange={async () => {
-                    const update = {
-                      ...todo,
-                      ...{ completed: !todo.completed },
-                    };
-                    const id = await updateTodo(update);
-                    setTodos(
-                      todos.map((todo) => (todo.id === id ? update : todo)),
-                    );
-                  }}
-                />
-                {todo.text}
-              </label>
-            </div>
+            <Todo
+              key={todo.id}
+              todo={todo}
+              setErrors={setErrors}
+              onDelete={(id) => setTodos(todos.filter((t) => t.id !== id))}
+              onUpdate={(id, updatedTodo) =>
+                setTodos(
+                  todos.filter((t) => (t.id === id ? updatedTodo : todo)),
+                )
+              }
+            />
           );
         })}
     </>
