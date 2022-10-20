@@ -1,18 +1,25 @@
-const { getCollection } = require("./utils/astraClient");
+const { getCollection } = require('./utils/astraClient');
 
 exports.handler = async (event, context) => {
-  const body = JSON.parse(event.body);
-  const todos = await getCollection();
   try {
-    const res = await todos.delete(body.id);
+    const body = JSON.parse(event.body);
+    const todos = await getCollection();
+    try {
+      const res = await todos.delete(body.id);
+      return {
+        statusCode: 200,
+        body: JSON.stringify(res),
+      };
+    } catch (deleteError) {
+      return {
+        statusCode: 400,
+        body:deleteError.message,
+      };
+    }
+  } catch (error) {
     return {
-      statusCode: 200,
-      body: JSON.stringify(res),
-    };
-  } catch (e) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify(e),
+      statusCode: 500,
+      body: error.message,
     };
   }
 };
