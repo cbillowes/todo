@@ -121,7 +121,7 @@ const App = () => {
               onDelete={(id) => setTodos(todos.filter((t) => t.id !== id))}
               onUpdate={(id, updatedTodo) =>
                 setTodos(
-                  todos.filter((t) => (t.id === id ? updatedTodo : todo)),
+                  todos.map((t) => (t.id === id ? updatedTodo : todo)),
                 )
               }
             />
