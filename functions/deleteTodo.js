@@ -13,13 +13,13 @@ exports.handler = async (event, context) => {
     } catch (deleteError) {
       return {
         statusCode: 400,
-        body:deleteError.message,
+        body: JSON.stringify(deleteError.message),
       };
     }
   } catch (error) {
     return {
       statusCode: 500,
-      body: error.message,
+      body: JSON.stringify(error.message),
     };
   }
 };

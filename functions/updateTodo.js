@@ -14,13 +14,13 @@ exports.handler = async (event, context) => {
     } catch (updateError) {
       return {
         statusCode: 400,
-        body: updateError.message,
+        body: JSON.stringify(updateError.message),
       };
     }
   } catch (error) {
     return {
       statusCode: 500,
-      body: error.message
+      body: JSON.stringify(error.message),
     };
   }
 };
