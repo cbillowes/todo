@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import api from './utils/api';
 import { v4 as uuid } from 'uuid';
+import './styles.css';
 
 const getTodos = async (setErrors) => {
   try {
