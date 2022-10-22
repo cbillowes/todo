@@ -47,6 +47,7 @@ const Todo = ({ todo, setErrors, onDelete, onUpdate }) => {
   return (
     <div className="flex items-center text-2xl py-4 px-4 bg-slate-800 border-slate-900 border my-1">
       <button
+        ariaLabel="Delete item"
         className="mr-2 hover:text-red-500"
         onClick={async () => {
           const id = await deleteTodo(todo.id, setErrors);
@@ -56,6 +57,7 @@ const Todo = ({ todo, setErrors, onDelete, onUpdate }) => {
         &times;
       </button>{' '}
       <label
+        ariaLabel={todo.text}
         className="flex items-center cursor-pointer"
         style={{
           textDecoration: `${todo.completed ? 'line-through' : ''}`,
@@ -96,7 +98,9 @@ const App = () => {
   return (
     <div className="bg-slate-700 text-white min-h-screen">
       <div className="mx-auto py-8 max-w-4xl">
-        <h1 className="uppercase font-bold text-slate-300 mb-1">✅ My awesome TODO list</h1>
+        <h1 className="uppercase font-bold text-slate-300 mb-1">
+          ✅ My awesome TO-DO list
+        </h1>
         <div className="flex">
           <input
             type="text"
