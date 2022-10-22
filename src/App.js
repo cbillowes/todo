@@ -5,7 +5,8 @@ import './styles.css';
 
 const getTodos = async (setErrors) => {
   try {
-    return await api.getTodos();
+    const todos = await api.getTodos();
+    return todos.sort((x, y) => y.created - x.created);
   } catch (e) {
     setErrors(`We tried to get your items but ${e.message}`);
   }
@@ -19,7 +20,7 @@ const addTodo = async (text, setErrors) => {
       text,
     };
     const newTodo = await api.createTodo(todo);
-    return { ...todo, id: newTodo.documentId };
+    return { ...todo, id: newTodo.documentId, created: newTodo.created };
   } catch (e) {
     setErrors(`We can't add this item but ${e.message}`);
   }
@@ -37,7 +38,10 @@ const deleteTodo = async (id, setErrors) => {
 const updateTodo = async (todo, setErrors) => {
   try {
     const item = await api.updateTodo(todo);
-    return item.documentId;
+    return {
+      id: item.documentId,
+      ...item,
+    };
   } catch (e) {
     setErrors(`We can't update this item but ${e.message}`);
   }
@@ -88,9 +92,13 @@ const App = () => {
   const [item, setItem] = useState('');
   const [errors, setErrors] = useState('');
 
+  const pushToTodos = (todos) => {
+    setTodos(todos.sort((x, y) => y.created - x.created));
+  };
+
   useEffect(() => {
     const loadTodos = async () => {
-      setTodos(await getTodos(setErrors));
+      pushToTodos(await getTodos(setErrors));
     };
     loadTodos();
   }, []);
@@ -112,7 +120,7 @@ const App = () => {
             className="bg-green-800 text-white w-56 text-5xl shadow-lg"
             onClick={async () => {
               const todo = await addTodo(item, setErrors);
-              setTodos([...todos, todo]);
+              pushToTodos([...todos, todo]);
             }}
           >
             Add
@@ -137,9 +145,13 @@ const App = () => {
                 key={todo.id}
                 todo={todo}
                 setErrors={setErrors}
-                onDelete={(id) => setTodos(todos.filter((t) => t.id !== id))}
-                onUpdate={(id, updatedTodo) =>
-                  setTodos(todos.map((t) => (t.id === id ? updatedTodo : todo)))
+                onDelete={(id) => pushToTodos(todos.filter((t) => t.id !== id))}
+                onUpdate={(toggled) =>
+                  pushToTodos(
+                    todos.map((t) => {
+                      return t.id === toggled.id ? toggled : t;
+                    }),
+                  )
                 }
               />
             );

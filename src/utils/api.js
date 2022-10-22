@@ -2,7 +2,7 @@ const wrapError = (response, message) => {
   return {
     status: response.status,
     message,
-    response
+    response,
   };
 };
 
@@ -22,19 +22,33 @@ const getTodos = async () => {
 };
 
 const createTodo = async (todo) => {
+  const body = {
+    ...todo,
+    created: new Date().getTime(),
+  };
   const response = await fetch('/.netlify/functions/createTodo', {
-    body: JSON.stringify(todo),
+    body: JSON.stringify(body),
     method: 'POST',
   });
-  return respond(response);
+  return {
+    ...(await respond(response)),
+    ...body,
+  };
 };
 
 const updateTodo = async (todo) => {
+  const body = {
+    ...todo,
+    modified: new Date().getTime(),
+  };
   const response = await fetch('/.netlify/functions/updateTodo', {
-    body: JSON.stringify(todo),
+    body: JSON.stringify(body),
     method: 'PUT',
   });
-  return respond(response);
+  return {
+    ...(await respond(response)),
+    ...body,
+  };
 };
 
 const deleteTodo = async (id) => {
