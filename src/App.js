@@ -47,9 +47,19 @@ const updateTodo = async (todo, setErrors) => {
   }
 };
 
-const Todo = ({ todo, setErrors, onDelete, onUpdate }) => {
+  const dtFormat = new Intl.DateTimeFormat('en-MU', {
+    timeZone: 'UTC',
+    weekday: 'short',
+    year: '2-digit',
+    month: 'long',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+  const created = dtFormat.format(new Date(todo.created));
+  const modified = todo.modified && dtFormat.format(new Date(todo.modified));
   return (
-    <div className="flex items-center text-2xl py-4 px-4 bg-slate-800 border-slate-900 border my-1">
+    <div className="flex items-center text-2xl py-6 px-4 bg-slate-800 border-slate-900 border my-1">
       <button
         aria-label="Delete item"
         className="mr-2 hover:text-red-500"
@@ -62,26 +72,37 @@ const Todo = ({ todo, setErrors, onDelete, onUpdate }) => {
       </button>{' '}
       <label
         aria-label={todo.text}
-        className="flex items-center cursor-pointer"
-        style={{
-          textDecoration: `${todo.completed ? 'line-through' : ''}`,
-        }}
+        className="flex items-center cursor-pointer w-full"
       >
         <input
           type="checkbox"
           value={todo.id}
           checked={todo.completed}
           onChange={async () => {
-            const updatedTodo = {
-              ...todo,
-              ...{ completed: !todo.completed },
-            };
-            const id = await updateTodo(updatedTodo, setErrors);
-            onUpdate && onUpdate(id, updatedTodo);
+            const toggled = await updateTodo(
+              {
+                ...todo,
+                ...{ completed: !todo.completed },
+              },
+              setErrors,
+            );
+            onUpdate && onUpdate(toggled);
           }}
           className="w-8 h-8 mr-2 text-green-500 focus:ring-green-400 focus:ring-opacity-25 border border-gray-300 rounded cursor-pointer"
         />
-        {todo.text}
+        <div className="flex justify-between w-full items-center">
+          <span
+            className={`${todo.completed ? 'line-through text-slate-700' : ''}`}
+          >
+            {todo.text}
+          </span>
+          <span className="text-xs text-right leading-loose">
+            {created && <div>Created on {created}</div>}
+            {modified && (
+              <div className="text-slate-700">Changed on {modified}</div>
+            )}
+          </span>
+        </div>
       </label>
     </div>
   );
