@@ -45,8 +45,9 @@ const updateTodo = async (todo, setErrors) => {
 
 const Todo = ({ todo, setErrors, onDelete, onUpdate }) => {
   return (
-    <div>
+    <div className="flex items-center text-2xl py-4 px-4 bg-slate-800 border-slate-900 border my-1">
       <button
+        className="mr-2 hover:text-red-500"
         onClick={async () => {
           const id = await deleteTodo(todo.id, setErrors);
           onDelete && onDelete(id);
@@ -55,6 +56,7 @@ const Todo = ({ todo, setErrors, onDelete, onUpdate }) => {
         &times;
       </button>{' '}
       <label
+        className="flex items-center cursor-pointer"
         style={{
           textDecoration: `${todo.completed ? 'line-through' : ''}`,
         }}
@@ -71,6 +73,7 @@ const Todo = ({ todo, setErrors, onDelete, onUpdate }) => {
             const id = await updateTodo(updatedTodo, setErrors);
             onUpdate && onUpdate(id, updatedTodo);
           }}
+          className="w-8 h-8 mr-2 text-green-500 focus:ring-green-400 focus:ring-opacity-25 border border-gray-300 rounded cursor-pointer"
         />
         {todo.text}
       </label>
@@ -91,45 +94,54 @@ const App = () => {
   }, []);
 
   return (
-    <>
-      <input
-        type="text"
-        placeholder="Enter something to do"
-        onChange={(e) => setItem(e.target.value)}
-      />
-      <button
-        onClick={async () => {
-          const todo = await addTodo(item, setErrors);
-          setTodos([...todos, todo]);
-        }}
-      >
-        Add
-      </button>
-      {errors && (
-        <div style={{ color: 'red' }}>
-          <strong>Something broke: </strong>
-          {errors}
+    <div className="bg-slate-700 text-white min-h-screen">
+      <div className="mx-auto py-8 max-w-4xl">
+        <h1 className="uppercase font-bold text-slate-300 mb-1">✅ My awesome TODO list</h1>
+        <div className="flex">
+          <input
+            type="text"
+            placeholder="Enter something to do"
+            onChange={(e) => setItem(e.target.value)}
+            className="bg-slate-900 text-white w-full py-2 px-4 text-5xl shadow-lg border-none"
+          />
+          <button
+            className="bg-green-800 text-white w-56 text-5xl shadow-lg"
+            onClick={async () => {
+              const todo = await addTodo(item, setErrors);
+              setTodos([...todos, todo]);
+            }}
+          >
+            Add
+          </button>
         </div>
-      )}
-      {todos && todos.length === 0 && <div>There is nothing to do.</div>}
-      {todos &&
-        todos.length > 0 &&
-        todos.map((todo) => {
-          return (
-            <Todo
-              key={todo.id}
-              todo={todo}
-              setErrors={setErrors}
-              onDelete={(id) => setTodos(todos.filter((t) => t.id !== id))}
-              onUpdate={(id, updatedTodo) =>
-                setTodos(
-                  todos.map((t) => (t.id === id ? updatedTodo : todo)),
-                )
-              }
-            />
-          );
-        })}
-    </>
+        {errors && (
+          <div className="bg-red-700 text-red-200 py-2 text-center mb-6">
+            <strong className="font-bold">Something broke: </strong>
+            {errors}
+          </div>
+        )}
+        {todos && todos.length === 0 && (
+          <div className="py-6 px-4 text-slate-300">
+            There is nothing to do right now. Add something to do ☝️.
+          </div>
+        )}
+        {/* https://play.tailwindcss.com/TvjY5NyGgv */}
+        {todos?.length > 0 &&
+          todos.map((todo) => {
+            return (
+              <Todo
+                key={todo.id}
+                todo={todo}
+                setErrors={setErrors}
+                onDelete={(id) => setTodos(todos.filter((t) => t.id !== id))}
+                onUpdate={(id, updatedTodo) =>
+                  setTodos(todos.map((t) => (t.id === id ? updatedTodo : todo)))
+                }
+              />
+            );
+          })}
+      </div>
+    </div>
   );
 };
 
