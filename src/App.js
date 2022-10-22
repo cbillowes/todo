@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import api from './utils/api';
 import { v4 as uuid } from 'uuid';
 import './styles.css';
@@ -91,6 +91,8 @@ const App = () => {
   const [todos, setTodos] = useState([]);
   const [item, setItem] = useState('');
   const [errors, setErrors] = useState('');
+  const form = useRef();
+  const textbox = useRef();
 
   const pushToTodos = (todos) => {
     setTodos(todos.sort((x, y) => y.created - x.created));
@@ -109,12 +111,21 @@ const App = () => {
         <h1 className="uppercase font-bold text-slate-300 mb-1">
           ✅ My awesome TO-DO list
         </h1>
-        <div className="flex">
+        <form
+          ref={form}
+          className="flex"
+          onSubmit={(e) => {
+            e.preventDefault();
+            textbox.current.value = '';
+          }}
+        >
           <input
+            ref={textbox}
+            aria-label="Enter a TO-DO task here"
             type="text"
-            placeholder="Enter something to do"
+            placeholder="What to do?"
             onChange={(e) => setItem(e.target.value)}
-            className="bg-slate-900 text-white w-full py-2 px-4 text-5xl shadow-lg border-none"
+            className="bg-slate-900 text-white w-full py-6 px-4 text-5xl shadow-lg border-none truncate"
           />
           <button
             className="bg-green-800 text-white w-56 text-5xl shadow-lg"
