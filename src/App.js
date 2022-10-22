@@ -62,6 +62,7 @@ const Todo = ({ todo, setErrors, onDelete, onUpdate }) => {
         <input
           type="checkbox"
           value={todo.id}
+          checked={todo.completed}
           onChange={async () => {
             const updatedTodo = {
               ...todo,
